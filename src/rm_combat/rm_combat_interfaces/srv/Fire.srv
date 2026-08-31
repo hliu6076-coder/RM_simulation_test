@@ -1,0 +1,6 @@
+uint64 client_sequence
+---
+bool accepted
+string reason
+uint64 shot_id
+uint32 remaining_ammo

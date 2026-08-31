@@ -1,0 +1,31 @@
+referee_node:
+  ros__parameters:
+    use_sim_time: true
+    red_robot_id: red_robot
+    blue_robot_id: blue_target
+    red_model_name: robot
+    blue_model_name: blue_target
+    default_mode: 1
+    auto_hp: 500
+    manual_hp: 500
+    auto_damage: 20
+    manual_damage: 20
+    initial_ammo: 50
+    fire_rate: 5.0
+    max_range: 10.0
+    obstacle_damage: 10
+    robot_collision_damage: 20
+    min_collision_speed: 0.5
+    match_duration: 120.0
+    autostart: true
+    enable_checkpoint: false
+    checkpoint_x: 0.5
+    checkpoint_y: 0.0
+    checkpoint_world_x: 4.8
+    checkpoint_world_y: 3.35
+    checkpoint_yaw: 0.0
+    checkpoint_radius: 0.35
+    checkpoint_dwell: 2.0
+    checkpoint_score: 50
+    buff_damage: 30
+    buff_duration: 15.0

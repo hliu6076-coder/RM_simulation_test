@@ -1,0 +1,24 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Plane: XY
+      Cell Size: 1
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Logical projectiles
+      Enabled: true
+      Topic:
+        Value: /combat/tracers
+        Reliability Policy: Reliable
+Window Geometry:
+  Width: 1100
+  Height: 700

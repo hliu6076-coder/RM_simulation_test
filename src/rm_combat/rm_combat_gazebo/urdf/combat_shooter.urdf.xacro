@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<robot name="combat_shooter" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="robot_id" default="red_robot"/>
+  <xacro:arg name="opponent_id" default="blue_target"/>
+  <xacro:arg name="body_rgba" default="0.75 0.05 0.05 1"/>
+  <xacro:arg name="projectile_speed" default="12.0"/>
+  <xacro:arg name="projectile_radius" default="0.02"/>
+
+  <xacro:property name="PI" value="3.141592653589793"/>
+  <xacro:property name="wheel_length" value="0.05"/>
+  <xacro:property name="wheel_radius" value="0.06"/>
+
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="0.01" ixy="0.0" ixz="0.0"
+        iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="wheel" params="name x y">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="wheel_black">
+          <color rgba="0.03 0.03 0.03 1"/>
+        </material>
+      </visual>
+      <collision name="${name}_collision">
+        <geometry>
+          <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+        </geometry>
+      </collision>
+      <xacro:default_inertial mass="0.5"/>
+    </link>
+    <joint name="base_to_${name}" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="${x} ${y} 0" rpy="${-PI / 2} 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="100" velocity="100"/>
+      <dynamics damping="0.05" friction="0.02"/>
+    </joint>
+    <gazebo reference="${name}">
+      <material>Gazebo/Black</material>
+      <mu1>0.5</mu1>
+      <mu2>0.5</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- Match the original lightweight RMUL wheeled chassis. -->
+  <link name="dummy"/>
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.05" rpy="0 0 ${PI / 2}"/>
+      <geometry>
+        <box size="0.20 0.30 0.10"/>
+      </geometry>
+      <material name="team_color">
+        <color rgba="$(arg body_rgba)"/>
+      </material>
+    </visual>
+    <collision name="chassis_collision">
+      <origin xyz="0 0 0.05" rpy="0 0 ${PI / 2}"/>
+      <geometry>
+        <box size="0.20 0.30 0.10"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="8.2"/>
+  </link>
+  <joint name="dummy_joint" type="fixed">
+    <parent link="dummy"/>
+    <child link="base_link"/>
+  </joint>
+
+  <xacro:wheel name="wheel_1" x="0.10" y="0.13"/>
+  <xacro:wheel name="wheel_2" x="-0.10" y="0.13"/>
+  <xacro:wheel name="wheel_3" x="0.10" y="-0.13"/>
+  <xacro:wheel name="wheel_4" x="-0.10" y="-0.13"/>
+
+  <!-- Keep the existing logical gimbal/fire interface; only restore its car body. -->
+  <link name="muzzle_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.025" length="0.25"/>
+      </geometry>
+      <material name="gun_dark_grey">
+        <color rgba="0.12 0.12 0.12 1"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="muzzle_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="muzzle_link"/>
+    <origin xyz="0.275 0 0.08" rpy="0 ${PI / 2} 0"/>
+  </joint>
+  <gazebo reference="muzzle_link">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="mecanum_controller" filename="libgazebo_ros_planar_move.so">
+      <ros>
+        <namespace>/$(arg robot_id)</namespace>
+        <remapping>cmd_vel:=cmd_vel_chassis</remapping>
+        <remapping>odom:=ground_truth_odom</remapping>
+      </ros>
+      <update_rate>100</update_rate>
+      <publish_rate>20</publish_rate>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>false</publish_odom_tf>
+      <odometry_frame>world</odometry_frame>
+      <robot_base_frame>$(arg robot_id)/base_link</robot_base_frame>
+      <covariance_x>0.0001</covariance_x>
+      <covariance_y>0.0001</covariance_y>
+      <covariance_yaw>0.001</covariance_yaw>
+    </plugin>
+    <plugin name="logical_shooter" filename="liblogical_shooter_plugin.so">
+      <robot_id>$(arg robot_id)</robot_id>
+      <opponent_id>$(arg opponent_id)</opponent_id>
+      <muzzle_x>0.40</muzzle_x>
+      <muzzle_y>0.0</muzzle_y>
+      <muzzle_z>0.08</muzzle_z>
+      <projectile_speed>$(arg projectile_speed)</projectile_speed>
+      <projectile_radius>$(arg projectile_radius)</projectile_radius>
+    </plugin>
+  </gazebo>
+</robot>

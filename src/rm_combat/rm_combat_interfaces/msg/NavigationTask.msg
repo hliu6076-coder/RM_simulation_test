@@ -1,0 +1,9 @@
+std_msgs/Header header
+uint64 task_id
+string robot_id
+geometry_msgs/PoseStamped goal
+float64 arrival_radius
+float64 dwell_time
+int32 score_reward
+int32 buff_damage
+float64 buff_duration

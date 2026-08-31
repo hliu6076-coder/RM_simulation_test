@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rm_combat_gazebo</name>
+  <version>0.1.0</version>
+  <description>Gazebo Classic straight-flight visual projectiles and logical hit simulation.</description>
+  <maintainer email="wangxiaotao@example.com">wangxiaotao</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>gazebo_dev</depend>
+  <depend>gazebo_ros</depend>
+  <exec_depend>gazebo_msgs</exec_depend>
+  <depend>geometry_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>rm_combat_interfaces</depend>
+  <depend>visualization_msgs</depend>
+  <exec_depend>pb_rm_simulation</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <gazebo_ros gazebo_plugin_path="${prefix}/lib" gazebo_model_path="${prefix}/share"/>
+  </export>
+</package>
