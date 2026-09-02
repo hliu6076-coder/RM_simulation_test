@@ -51,6 +51,8 @@
 
     ```sh
     sudo apt install cmake
+
+    
     ```
 
     ```sh
@@ -75,6 +77,14 @@
     ```sh
     colcon build --symlink-install
     ```
+
+5
+```bash
+colcon build --parallel-workers 1 #单线程
+source /opt/ros/humble/setup.bash
+source install/setup.bash # 环境搭建
+ros2 launch pb_rm_simulation rm_simulation.launch.py
+
 
 ## 三. 运行
 
@@ -118,6 +128,10 @@
 - 边建图边导航
 
     ```sh
+source /opt/ros/humble/setup.bash
+source install/setup.bash # 环境搭建
+
+    
     ros2 launch rm_nav_bringup bringup_sim.launch.py \
     world:=RMUL \
     mode:=mapping \

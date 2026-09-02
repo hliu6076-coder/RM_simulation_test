@@ -74,7 +74,24 @@ class Probe(Node):
         request.state.pose.orientation.w = math.cos(yaw / 2.0)
         response = self.call(self.set_state, request)
         if not response.success:
-            raise RuntimeError(f'failed to position {name}: {response.status_message}')
+            raise RuntimeError(f'failed to position {name}')
+
+    def wait_for_entity(self, name, timeout=20.0):
+        if not self.get_state.wait_for_service(timeout_sec=timeout):
+            return False
+        deadline = time.monotonic() + timeout
+        request = GetEntityState.Request()
+        request.name = name
+        request.reference_frame = 'world'
+        while time.monotonic() < deadline:
+            future = self.get_state.call_async(request)
+            remaining = max(0.1, deadline - time.monotonic())
+            if self.wait(future.done, min(2.0, remaining)):
+                response = future.result()
+                if response is not None and response.success:
+                    return True
+            self.spin_for(0.1)
+        return False
 
     def robot_x(self, name):
         request = GetEntityState.Request()
@@ -109,6 +126,10 @@ def main():
         print(
             f'initial red={node.status["red_robot"].hp} '
             f'blue={node.status["blue_robot"].hp}')
+
+        if not node.wait_for_entity('red_robot') or \
+                not node.wait_for_entity('blue_robot'):
+            raise RuntimeError('Gazebo robot entities unavailable')
 
         reset_before_start = node.call(node.reset_client, Trigger.Request())
         if not reset_before_start.success:
@@ -179,14 +200,16 @@ def main():
         spawn.reference_frame = 'world'
         spawn.initial_pose.position.x = 0.8
         spawn.initial_pose.position.y = -10.0
-        spawn.initial_pose.position.z = 0.2
+        # Use a tall wall so the contact normal is unambiguously horizontal
+        # with both the lightweight chassis and the restored wheeled chassis.
+        spawn.initial_pose.position.z = 1.0
         spawn.initial_pose.orientation.w = 1.0
         spawn.xml = '''<sdf version="1.6"><model name="duel_test_obstacle">
           <static>true</static><link name="link">
           <collision name="collision"><geometry><box>
-          <size>0.2 1.0 0.4</size></box></geometry></collision>
+          <size>0.2 1.0 2.0</size></box></geometry></collision>
           <visual name="visual"><geometry><box>
-          <size>0.2 1.0 0.4</size></box></geometry></visual>
+          <size>0.2 1.0 2.0</size></box></geometry></visual>
           </link></model></sdf>'''
         spawn_response = node.call(node.spawn, spawn)
         if not spawn_response.success:

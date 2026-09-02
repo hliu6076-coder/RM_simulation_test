@@ -1,3 +1,18 @@
+# 裁判系统说明
+
+## 自动冒烟测试
+
+编译后可使用独立 ROS 域和端口测试裁判，不影响正在运行的正式比赛：
+
+```bash
+cd ~/github/RM_simulation_test
+./test_referee.sh
+```
+
+该脚本覆盖 11 个规则单元测试、错误 token 拒绝，以及 `start`、`pause`、`resume`、`reset` 网络命令。日常启动以 [快速启动.md](./快速启动.md) 为准。
+
+## 历史开发记录
+
 /home/wangxiaotao/文档/ChatGPT/仿真/RM_SELECTION_PROJECT_HANDOFF.md
 请先完整读取 /home/wangxiaotao/文档/ChatGPT/仿真/RM_SELECTION_PROJECT_HANDOFF.md，
 再继续 RM 新生选拔裁判系统项目。不要从头重新设计，先核对当前仓库状态和文档中的下一步。
@@ -5,18 +20,18 @@
 
 环境初始化
 
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 裁判端启动端口
 使用 run_rmul_match.sh 时已自动启动裁判端，无需重复执行本节。
 
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ros2 launch rm_referee lan_referee_demo.launch.py \
@@ -27,10 +42,10 @@ ros2 launch rm_referee lan_referee_demo.launch.py \
   referee_token:=referee-test-2026 \
   state_broadcast_hz:=2.0
 红方选手端连接
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -41,10 +56,10 @@ source install/setup.bash
   --token red-test-2026 \
   --watch-seconds 300
 蓝方选手端连接
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -55,10 +70,10 @@ source install/setup.bash
   --token blue-test-2026 \
   --watch-seconds 300
 连接交互式裁判 CLI
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -68,10 +83,10 @@ source install/setup.bash
   --name main-referee \
   --token referee-test-2026
 裁判直接开始比赛
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -88,13 +103,13 @@ resume
 reset
 下次主机启动
 终端 1：启动 RMUL 仿真、导航和裁判服务
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 ./run_rmul_match.sh
 终端 2：连接裁判控制终端
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -104,10 +119,10 @@ source install/setup.bash
   --name main-referee \
   --token referee-test-2026
 终端 3：连接红方选手端
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 ./install/rm_referee/lib/rm_referee/referee_lan_client \
@@ -278,11 +293,11 @@ export GAZEBO_MASTER_URI=http://127.0.0.1:11346
 选手自己的开发域与正式比赛域不同，因此不会控制正式场地。
 五、主办方启动正式比赛
 主办方终端：
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 export ROS_DOMAIN_ID=42
@@ -292,11 +307,11 @@ export ROS_LOCALHOST_ONLY=1
 该终端保持运行。
 六、主办方连接裁判 CLI
 另开主办方终端：
-cd ~/github/pb_rm_simulation
+cd ~/github/RM_simulation_test
 
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 source install/setup.bash
 
 export ROS_DOMAIN_ID=42
@@ -414,7 +429,7 @@ git status --short
 重新编译：
 set +u
 source /opt/ros/humble/setup.bash
-source /home/wangxiaotao/ws_livox/install/setup.bash
+source /home/wangxiaotao/ws_livox/install/setup.bash 2>/dev/null || true
 
 export CMAKE_POLICY_VERSION_MINIMUM=3.5
 

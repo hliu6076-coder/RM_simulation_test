@@ -43,9 +43,13 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory('pb_rm_simulation')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
-    # Specify xacro path
+    # # Specify xacro path
+    # default_robot_description = Command(['xacro ', os.path.join(
+    # get_package_share_directory('pb_rm_simulation'), 'urdf', 'simulation_waking_robot.xacro')])
+
+    # Specify xacro path to rmrobot
     default_robot_description = Command(['xacro ', os.path.join(
-    get_package_share_directory('pb_rm_simulation'), 'urdf', 'simulation_waking_robot.xacro')])
+    get_package_share_directory('pb_rm_simulation'), 'urdf', 'odin1_robot.xacro')])
 
     # Create the launch configuration variables
     use_sim_time = LaunchConfiguration('use_sim_time')
