@@ -47,7 +47,7 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz_default_plugins/Image
-      Enabled: true
+      Enabled: false
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -58,21 +58,21 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /camera_sensor/image_raw
-      Value: true
+        Value: /odin1/camera/rgbcamera/image_raw
+      Value: false
     - Class: rviz_default_plugins/Camera
-      Enabled: false
+      Enabled: true
       Far Plane Distance: 100
-      Image Rendering: background and overlay
+      Image Rendering: background
       Name: Camera
-      Overlay Alpha: 0.5
+      Overlay Alpha: 1
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /camera_sensor/image_raw
-      Value: false
+        Value: /odin1/camera/rgbcamera/image_raw
+      Value: true
       Visibility:
         Grid: true
         Image: true
@@ -111,7 +111,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /livox/lidar/pointcloud
+        Value: /odin1/depthmod/depthmod/points
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
