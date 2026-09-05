@@ -80,11 +80,17 @@
 
 5
 ```bash
-colcon build --parallel-workers 1 #单线程
+find /opt/ros/humble/include -iname '*transform_broadcaster*'
+
+colcon build --packages-select rm_slam --symlink-install --parallel-workers 1
 source /opt/ros/humble/setup.bash
 source install/setup.bash # 环境搭建
 ros2 launch pb_rm_simulation rm_simulation.launch.py
+ros2 run rm_slam odom_transform_node
+ros2 run rm_slam rgb_depth_node
 
+
+ros2 launch pb_rm_simulation rm_simulation.launch.py
 
 ## 三. 运行
 

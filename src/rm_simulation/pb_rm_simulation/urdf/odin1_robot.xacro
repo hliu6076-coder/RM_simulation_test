@@ -5,6 +5,16 @@
   <xacro:property name="length_wheel" value="0.05" />
   <xacro:property name="radius_wheel" value="0.06" />
   <xacro:property name="PI" value="3.1415926"/>
+
+  <!-- Odin1 nominal rates. Override with odin1_*_fps:=15 when expanding xacro. -->
+  <xacro:arg name="odin1_depth_fps" default="10.0" />
+  <xacro:arg name="odin1_rgb_fps" default="10.0" />
+  <xacro:arg name="odin1_imu_fps" default="100.0" />
+  <!--
+    Gazebo Classic does not model range as a function of target reflectivity.
+    70 m represents the 90% reflectivity case; use 30 for the 10% case.
+  -->
+  <xacro:arg name="odin1_depth_max_range" default="70.0" />
   <xacro:macro name="default_inertial" params="mass">
     <inertial>
       <mass value="${mass}" />
@@ -154,6 +164,11 @@
     <child link="imu_link"/>
   </joint>
 
+  <!-- Keep Gazebo from lumping imu_link into the model's root link. -->
+  <gazebo reference="imu_joint">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+
   <!-- IMU -->
   <link name="imu_link">
     <collision>
@@ -250,13 +265,18 @@
   </gazebo>
   <gazebo reference="tof_link">
     <sensor type="depth" name="odin1_depth_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
       <camera>
-        <horizontal_fov>2.094</horizontal_fov>
+        <!-- 120 deg horizontal; vertical FOV is derived by Gazebo's pinhole model. -->
+        <horizontal_fov>2.094395102</horizontal_fov>
+        <!-- 432 kpts/s at 10 FPS and 648 kpts/s at the 15 FPS hardware limit. -->
         <image><width>240</width><height>180</height></image>
-        <clip><near>0.2</near><far>70</far></clip>
+        <clip><near>0.2</near><far>$(arg odin1_depth_max_range)</far></clip>
+        <!-- Simplified 3 cm (1 sigma) range-noise approximation. -->
         <noise><type>gaussian</type><mean>0</mean><stddev>0.03</stddev></noise>
       </camera>
-      <update_rate>10</update_rate>
+      <update_rate>$(arg odin1_depth_fps)</update_rate>
     <!-- 加这个插件，数据才进 ROS2 -->
       <plugin name="tof_camera" filename="libgazebo_ros_camera.so">
         <ros>
@@ -264,21 +284,25 @@
         </ros>
         <camera_name>depthmod</camera_name>
         <frame_name>tof_optical_frame</frame_name>
-        <hack_baseline>0.07</hack_baseline>
+        <!-- ToF is monocular depth, so camera_info must not advertise a stereo baseline. -->
+        <hack_baseline>0.0</hack_baseline>
         <min_depth>0.2</min_depth>
-        <max_depth>50</max_depth>
+        <max_depth>$(arg odin1_depth_max_range)</max_depth>
       </plugin>
     </sensor>
   </gazebo>
   <gazebo reference="rgb_camera_link">
     <sensor type="camera" name="odin1_rgb_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
       <camera>
-        <horizontal_fov>2.25147</horizontal_fov>
+        <!-- 129 deg horizontal; the real 173 deg diagonal lens is not a pinhole lens. -->
+        <horizontal_fov>2.251474735</horizontal_fov>
         <image><width>1600</width><height>1296</height><format>R8G8B8</format></image>
         <clip><near>0.05</near><far>100</far></clip>
         <noise><type>gaussian</type><mean>0</mean><stddev>0.01</stddev></noise>
       </camera>
-      <update_rate>10</update_rate>
+      <update_rate>$(arg odin1_rgb_fps)</update_rate>
     <!-- 加这个插件，数据才进 ROS2 -->
       <plugin name="rgb_camera" filename="libgazebo_ros_camera.so">
         <ros>
@@ -293,11 +317,13 @@
   <gazebo reference="imu_link">
     <sensor type="imu" name="odin1_imu">
       <always_on>true</always_on>
-      <update_rate>100</update_rate>
+      <update_rate>$(arg odin1_imu_fps)</update_rate>
       <plugin name="odin1_imu_plugin" filename="libgazebo_ros_imu_sensor.so">
         <ros> 
           <namespace>/odin1/imu</namespace>
+          <remapping>~/out:=/odin1/imu/data_raw</remapping>
         </ros>
+        <frame_name>imu_link</frame_name>
       </plugin>
     </sensor>
   </gazebo>
