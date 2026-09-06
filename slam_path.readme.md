@@ -50,7 +50,7 @@ wangxiaotao@wangxiaotao-ASUS-TUF-Gaming-F16-FX607JU-FX607JU:~/github/RM_simulati
 [INFO] [1788597058.987539986] [rgb_depth_node]: input points: 43200, output points: 34800
 [INFO] [1788597059.087361201] [rgb_depth_node]: input points: 43200, output points: 34800
 ```
-# 测出协方差矩阵偏移较小，
+# 测出协方差矩阵偏移较小，连乘变换矩阵累计xyz
 ```bash
 [INFO] [1788611930.208546947] [odom_depth_transform_node]: ICP收敛: dt=0.200 score=0.000000
            1            0  2.98023e-08 -4.76837e-07
@@ -73,5 +73,29 @@ r00 r01 r02 tx
 r10 r11 r12 ty
 r20 r21 r22 tz
  0   0   0   1 # [矩阵参数]
+```
+# 发布nav2_odometry:/odom_depth 深度里程计
+
+```bash
+---
+header:
+  stamp:
+    sec: 4540
+    nanosec: 873000000
+  frame_id: odom_depth
+child_frame_id: base_link
+pose:
+  pose:
+    position:
+      x: -5.736947059631348e-07
+      y: 2.384185791015625e-06
+      z: -9.5367431640625e-07
+    orientation:
+      x: 1.4901161193847653e-08
+      y: 1.117587089538574e-08
+      z: 3.7252902984619132e-09
+      w: 0.9999999999999998
+  covariance:
+  - 0.0
 ```
 

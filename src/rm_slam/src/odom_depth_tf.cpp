@@ -4,7 +4,9 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <pcl_conversions/pcl_conversions.h>
+#include <nav_msgs/msg/odometry.hpp>
 
 OdomDepthTransform::OdomDepthTransform()
     : rclcpp::Node("odom_depth_transform_node")
@@ -13,6 +15,9 @@ OdomDepthTransform::OdomDepthTransform()
                 "/filtered_depth_frame", 
                 rclcpp::SensorDataQoS(), 
                 std::bind(&OdomDepthTransform::depth_filter_feedback, this, std::placeholders::_1));
+            
+            odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("odom_depth", 10);
+        
         }
 void OdomDepthTransform::depth_filter_feedback(const sensor_msgs::msg::PointCloud2::SharedPtr msg)
 {
@@ -61,6 +66,37 @@ void OdomDepthTransform::depth_filter_feedback(const sensor_msgs::msg::PointClou
     // 结束时间帧和点云更新
     previous_stamp = current_stamp;
     previous_cloud_data = current_cloud_data;
+
+    // 连乘变换矩阵累计xyz,rpys
+    Eigen::Isometry3d odom_sensor_pose_ = Eigen::Isometry3d::Identity();
+    const Eigen::Matrix4f icp_result = icp.getFinalTransformation();
+    Eigen::Isometry3d relative_sensor_pose = Eigen::Isometry3d::Identity();
+    relative_sensor_pose.matrix() = icp_result.cast<double>();
+    odom_sensor_pose_ = odom_sensor_pose_ * relative_sensor_pose;
+    const Eigen::Vector3d position = odom_sensor_pose_.translation();
+    Eigen::Quaterniond orientation(odom_sensor_pose_.rotation());
+    orientation.normalize();
+
+    // 发布tf坐标
+    nav_msgs::msg::Odometry odom_msg;
+    odom_msg.header.stamp = msg->header.stamp;
+    odom_msg.header.frame_id = "odom_depth";
+    odom_msg.child_frame_id = "base_link";
+
+    odom_msg.pose.pose.position.x = position.x();
+    odom_msg.pose.pose.position.y = position.y();
+    odom_msg.pose.pose.position.z = position.z();
+
+    odom_msg.pose.pose.orientation.x = orientation.x();
+    odom_msg.pose.pose.orientation.y = orientation.y();
+    odom_msg.pose.pose.orientation.z = orientation.z();
+    odom_msg.pose.pose.orientation.w = orientation.w();
+
+    odom_publisher->publish(odom_msg);
+
+
+    
+
 
 }
 int main(int argc, char ** argv)

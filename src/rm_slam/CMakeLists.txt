@@ -57,6 +57,7 @@ ament_target_dependencies(odom_depth_transform_node
   PCL
   Eigen3
   pcl_conversions
+  nav_msgs
   )
 
 target_include_directories(
