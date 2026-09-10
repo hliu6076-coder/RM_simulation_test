@@ -59,6 +59,9 @@ ament_target_dependencies(rgb_depth_node
 ament_target_dependencies(odom_depth_transform_node
   rclcpp                           
   sensor_msgs
+  geometry_msgs
+  tf2
+  tf2_ros
   PCL
   Eigen3
   pcl_conversions
