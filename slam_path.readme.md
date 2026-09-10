@@ -15,7 +15,14 @@ ros2 launch pb_rm_simulation rm_simulation.launch.py # 仿真环境
 ros2 run rm_slam odom_transform_node
 ros2 run rm_slam odom_depth_transform_node
 ros2 run rm_slam rgb_depth_node
+ros2 run rm_slam scan_process_node
 
+ros2 launch pb_rm_simulation rm_simulation.launch.py \
+  world:=RMUL \
+  rviz:=false
+ros2 launch rm_slam rtabmap_odin1.launch.py \
+  rtabmap_viz:=true
+ros2 run rm_slam wasd_teleop
 
 ros2 launch pb_rm_simulation rm_simulation.launch.py
 ```
@@ -98,4 +105,11 @@ pose:
   covariance:
   - 0.0
 ```
+# 查看/scan话题类型
+
+```bash
+ros2 interface show sensor_msgs/msg/LaserScan
+```
+
+# 跑通RTAB-Map
 

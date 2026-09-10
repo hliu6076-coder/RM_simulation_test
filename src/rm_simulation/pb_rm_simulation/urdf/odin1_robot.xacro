@@ -263,6 +263,27 @@
   <gazebo reference="wheel_4">
     <material>Gazebo/Black</material>
   </gazebo>
+
+  <!-- Kinematic mecanum control for keyboard/SLAM testing. Odometry stays owned
+       by the selected localization node, so this plugin must not publish TF. -->
+  <gazebo>
+    <plugin name="mecanum_controller" filename="libgazebo_ros_planar_move.so">
+      <ros>
+        <namespace>/</namespace>
+        <remapping>cmd_vel:=cmd_vel_chassis</remapping>
+      </ros>
+      <update_rate>100</update_rate>
+      <publish_rate>10</publish_rate>
+      <publish_odom>false</publish_odom>
+      <publish_odom_tf>false</publish_odom_tf>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <covariance_x>0.0001</covariance_x>
+      <covariance_y>0.0001</covariance_y>
+      <covariance_yaw>0.01</covariance_yaw>
+    </plugin>
+  </gazebo>
+
   <gazebo reference="tof_link">
     <sensor type="depth" name="odin1_depth_camera">
       <always_on>true</always_on>
